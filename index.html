@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0d5f59" />
+  <meta name="description" content="Create and manage clean invoices and receipts." />
+  <title>Invoice Simple</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" type="button" data-route="home" aria-label="Invoice Simple home">
+        <span class="brand-mark" aria-hidden="true">IS</span>
+        <span><strong>Invoice Simple</strong><small>Documents made clear</small></span>
+      </button>
+      <button class="avatar-btn" id="profileShortcut" type="button" data-route="settings" aria-label="Open business profile">DM</button>
+    </header>
+
+    <main id="mainContent" tabindex="-1">
+      <section class="screen is-active" id="homeScreen" data-screen="home">
+        <div class="home-heading">
+          <div><p class="kicker">Your workspace</p><h1>Good morning</h1><p>Create, track, and share professional documents from one place.</p></div>
+          <button class="primary wide-mobile" type="button" id="newDocumentBtn">Create document</button>
+        </div>
+        <div class="summary-grid" aria-label="Document summary">
+          <article class="summary primary-summary"><span>Outstanding</span><strong id="outstandingValue">$0.00</strong><small id="outstandingCount">0 open invoices</small></article>
+          <article class="summary"><span>Paid</span><strong id="paidValue">$0.00</strong><small>This month</small></article>
+          <article class="summary"><span>Documents</span><strong id="documentCount">0</strong><small>Invoices and receipts</small></article>
+        </div>
+        <section class="content-section">
+          <div class="section-heading"><div><h2>Recent activity</h2><p>Your latest invoices and receipts.</p></div><button class="text-btn" type="button" data-route="records">View all</button></div>
+          <div id="recentList" class="document-list"></div>
+        </section>
+      </section>
+
+      <section class="screen" id="createScreen" data-screen="create" hidden>
+        <div class="screen-heading"><button class="back-btn" type="button" data-route="home" aria-label="Back to home">Back</button><div><p class="kicker">New document</p><h1>Create invoice</h1></div></div>
+        <form id="documentForm" novalidate>
+          <section class="form-section">
+            <div class="segmented" role="group" aria-label="Document type">
+              <button class="is-selected" type="button" data-doc-type="invoice">Invoice</button>
+              <button type="button" data-doc-type="receipt">Receipt</button>
+            </div>
+            <input id="documentType" type="hidden" value="invoice" />
+            <div class="field-grid">
+              <label><span>Document number</span><input id="documentNumber" required readonly /></label>
+              <label><span>Issue date</span><input id="issueDate" type="date" required /></label>
+              <label id="dueDateField"><span>Due date</span><input id="dueDate" type="date" required /></label>
+              <label><span>Currency</span><select id="currency"><option>USD</option><option>TTD</option><option>CAD</option><option>GBP</option><option>EUR</option></select></label>
+            </div>
+          </section>
+          <section class="form-section"><h2>Bill to</h2><div class="field-grid"><label><span>Client name</span><input id="clientName" autocomplete="name" required /></label><label><span>Email</span><input id="clientEmail" type="email" autocomplete="email" /></label><label class="full"><span>Address</span><textarea id="clientAddress" rows="2"></textarea></label></div></section>
+          <section class="form-section"><div class="section-heading compact"><h2>Items</h2><button class="text-btn" type="button" id="addItemBtn">Add item</button></div><div id="itemsList" class="items-list"></div></section>
+          <section class="form-section totals"><div><span>Subtotal</span><strong id="subtotalValue">$0.00</strong></div><label><span>Tax</span><input id="taxValue" type="number" min="0" step="0.01" value="0" /></label><div class="grand-total"><span>Total</span><strong id="totalValue">$0.00</strong></div></section>
+          <section class="form-section"><label><span>Notes</span><textarea id="notes" rows="3" placeholder="Payment terms or a short thank-you note"></textarea></label></section>
+          <div class="form-actions"><button class="secondary" type="button" id="previewBtn">Preview</button><button class="primary" type="submit">Save document</button></div>
+        </form>
+      </section>
+
+      <section class="screen" id="recordsScreen" data-screen="records" hidden>
+        <div class="screen-heading simple"><div><p class="kicker">History</p><h1>Documents</h1><p>Search invoices and receipts saved to this account.</p></div></div>
+        <div class="filter-row"><label class="search-field"><span class="sr-only">Search documents</span><input id="recordSearch" type="search" placeholder="Search client or number" /></label><select id="recordType" aria-label="Filter document type"><option value="all">All</option><option value="invoice">Invoices</option><option value="receipt">Receipts</option></select></div>
+        <div id="recordsList" class="document-list"></div>
+      </section>
+
+      <section class="screen" id="settingsScreen" data-screen="settings" hidden>
+        <div class="screen-heading simple"><div><p class="kicker">Account</p><h1>Business profile</h1><p>These details and your logo appear on generated documents.</p></div></div>
+        <form id="profileForm">
+          <section class="form-section logo-section"><div id="logoPreview" class="logo-preview" aria-live="polite"><span>Logo</span></div><div><label class="upload-btn" for="logoInput">Choose logo</label><input class="sr-only" id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" /><p>PNG, JPEG, or WebP. Maximum 2 MB.</p><button class="text-btn danger" id="removeLogoBtn" type="button">Remove logo</button></div></section>
+          <section class="form-section"><div class="field-grid"><label><span>Business name</span><input id="businessName" required /></label><label><span>Email</span><input id="businessEmail" type="email" /></label><label><span>Phone</span><input id="businessPhone" type="tel" /></label><label class="full"><span>Address</span><textarea id="businessAddress" rows="3"></textarea></label></div><button class="primary" type="submit">Save profile</button></section>
+        </form>
+        <section class="support-panel"><div><h2>Support this project</h2><p>If Invoice Simple saves you time, you can make a voluntary contribution through PayPal.</p></div><button class="secondary" type="button" id="supportBtn">Support us</button></section>
+        <section class="account-note"><h2>OW Central account</h2><p id="authStatus">Development mode is active. OW Central sign-in will be connected when the portal is ready.</p></section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <button class="is-active" type="button" data-route="home"><span aria-hidden="true">H</span>Home</button>
+      <button type="button" data-route="create"><span aria-hidden="true">+</span>Create</button>
+      <button type="button" data-route="records"><span aria-hidden="true">D</span>Documents</button>
+      <button type="button" data-route="settings"><span aria-hidden="true">S</span>Settings</button>
+    </nav>
+  </div>
+
+  <dialog id="previewDialog"><div class="dialog-head"><div><p class="kicker">Document preview</p><h2 id="previewHeading">Invoice</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close preview">Close</button></div><div id="previewContent" class="paper-preview"></div><div class="dialog-actions"><button class="secondary" type="button" id="printBtn">Print or save PDF</button><button class="primary" type="button" id="shareBtn">Share</button></div></dialog>
+  <dialog id="supportDialog"><div class="dialog-head"><div><p class="kicker">Voluntary contribution</p><h2>Support us</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close support menu">Close</button></div><p>Your support helps keep this invoice tool available and improving. Payments are securely handled by PayPal.</p><button class="paypal-btn" type="button" id="paypalBtn">Continue to PayPal</button><small>No contribution is required to use the app.</small></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="config.js"></script><script type="module" src="app.js"></script>
+</body>
+</html>
