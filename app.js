@@ -1,6 +1,7 @@
 import { createInitialState, formatMoney, nextDocumentNumber } from './core.js';
 
 const CONFIG = window.PUBLIC_INVOICE_CONFIG || {};
+const API = window.PublicInvoiceAPI;
 const STORAGE_KEY = 'ow_public_invoice_mobile_v1';
 
 function loadState() {
@@ -16,6 +17,8 @@ const $ = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[char]));
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function usesRemoteAccount() { return CONFIG.authMode === 'ow-central' && API?.configured(); }
+function canUseRemoteAccount() { return usesRemoteAccount() && Boolean(API.token()); }
 function today() { return new Date().toISOString().slice(0, 10); }
 function addDays(dateString, days) { const date = new Date(`${dateString}T12:00:00`); date.setDate(date.getDate() + days); return date.toISOString().slice(0,10); }
 function showToast(message) { const toast=$('toast'); toast.textContent=message; toast.hidden=false; clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>{toast.hidden=true;},2600); }
@@ -92,12 +95,27 @@ document.querySelectorAll('[data-doc-type]').forEach((button)=>button.addEventLi
 document.querySelectorAll('[data-close-dialog]').forEach((button)=>button.addEventListener('click',()=>button.closest('dialog').close()));
 $('newDocumentBtn').addEventListener('click',()=>route('create')); $('addItemBtn').addEventListener('click',()=>addItem()); $('taxValue').addEventListener('input',calculate);
 $('previewBtn').addEventListener('click',()=>{ if(!$('documentForm').reportValidity()) return; openPreview(collectDocument()); });
-$('documentForm').addEventListener('submit',(event)=>{ event.preventDefault(); if(!event.currentTarget.reportValidity()) return; const doc=collectDocument(); state.counters[doc.type]+=1; state.documents.unshift(doc); persist(); renderHome(); showToast(`${doc.type==='receipt'?'Receipt':'Invoice'} saved.`); route('home'); });
+$('documentForm').addEventListener('submit',async(event)=>{ event.preventDefault(); if(!event.currentTarget.reportValidity()) return; let doc=collectDocument();
+  try{if(usesRemoteAccount()){if(!canUseRemoteAccount())throw new Error('Sign in with OW Central before saving to your account.');doc=(await API.saveDocument(doc)).document;}
+    else state.counters[doc.type]+=1; state.documents.unshift(doc); persist(); renderHome(); showToast(`${doc.type==='receipt'?'Receipt':'Invoice'} saved${usesRemoteAccount()?' securely':''}.`); route('home');
+  }catch(error){showToast(error.message||'Document could not be saved.');}});
 $('recordSearch').addEventListener('input',renderRecords); $('recordType').addEventListener('change',renderRecords);
-$('profileForm').addEventListener('submit',(event)=>{event.preventDefault(); state.profile={...state.profile,businessName:$('businessName').value.trim(),businessEmail:$('businessEmail').value.trim(),businessPhone:$('businessPhone').value.trim(),businessAddress:$('businessAddress').value.trim()}; persist(); renderProfile(); showToast('Business profile saved.');});
+$('profileForm').addEventListener('submit',async(event)=>{event.preventDefault();const profile={...state.profile,businessName:$('businessName').value.trim(),businessEmail:$('businessEmail').value.trim(),businessPhone:$('businessPhone').value.trim(),businessAddress:$('businessAddress').value.trim()};
+  try{state.profile=canUseRemoteAccount()?(await API.saveProfile(profile)).profile:profile;persist();renderProfile();showToast(`Business profile saved${canUseRemoteAccount()?' securely':''}.`);}catch(error){showToast(error.message||'Profile could not be saved.');}});
 $('logoInput').addEventListener('change',(event)=>{const file=event.target.files[0]; if(!file)return; if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>(CONFIG.maxLogoBytes||2097152)){event.target.value='';return showToast('Choose a PNG, JPEG, or WebP under 2 MB.');} const reader=new FileReader(); reader.onload=()=>{state.profile.logoDataUrl=reader.result;persist();renderProfile();showToast('Logo updated.');};reader.readAsDataURL(file);});
 $('removeLogoBtn').addEventListener('click',()=>{state.profile.logoDataUrl='';persist();renderProfile();showToast('Logo removed.');});
 $('supportBtn').addEventListener('click',()=>$('supportDialog').showModal()); $('paypalBtn').addEventListener('click',()=>{if(CONFIG.paypalDonateUrl){window.open(CONFIG.paypalDonateUrl,'_blank','noopener');}else{showToast('PayPal will be connected before release.');}});
 $('printBtn').addEventListener('click',()=>window.print()); $('shareBtn').addEventListener('click',async()=>{const text=$('previewContent').innerText; if(navigator.share){try{await navigator.share({title:$('previewHeading').textContent,text});}catch{}}else{await navigator.clipboard.writeText(text);showToast('Document details copied.');}});
 
-renderHome(); renderProfile(); resetForm();
+$('owCentralLoginBtn').addEventListener('click',()=>{if(CONFIG.owCentralLoginUrl)location.assign(CONFIG.owCentralLoginUrl);else showToast('OW Central login URL is not configured.');});
+
+async function initializeAccount(){
+  const status=$('authStatus'),login=$('owCentralLoginBtn');
+  if(!usesRemoteAccount()){status.textContent='Development mode is active. Records are stored only on this device.';return;}
+  login.hidden=canUseRemoteAccount();
+  if(!canUseRemoteAccount()){status.textContent='Sign in with OW Central to access your private cloud records.';return;}
+  try{await API.health();const[documents,profile]=await Promise.all([API.listDocuments(),API.getProfile()]);state.documents=documents.documents||[];state.profile={...state.profile,...profile.profile};persist();renderHome();renderProfile();status.textContent='Signed in · public cloud records synchronized.';}
+  catch(error){status.textContent=error.message||'Account synchronization failed.';login.hidden=false;}
+}
+
+renderHome(); renderProfile(); resetForm(); initializeAccount();

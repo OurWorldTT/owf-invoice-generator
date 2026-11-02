@@ -1,0 +1,4 @@
+import test from 'node:test'; import assert from 'node:assert/strict'; import { validateDocument } from '../lib/documents.js';
+test('server recalculates totals instead of trusting the browser',()=>{const value=validateDocument({type:'invoice',issueDate:'2026-11-02',dueDate:'2026-11-10',clientName:'Test',currency:'USD',items:[{description:'Service',quantity:2,rate:12.5}],tax:2,total:999});assert.equal(value.subtotal,25);assert.equal(value.total,27);});
+test('receipt does not require a due date',()=>{const value=validateDocument({type:'receipt',issueDate:'2026-11-02',clientName:'Test',currency:'TTD',items:[{description:'Item',quantity:1,rate:10}]});assert.equal(value.dueDate,null);assert.equal(value.status,'paid');});
+test('due date cannot precede issue date',()=>assert.throws(()=>validateDocument({type:'invoice',issueDate:'2026-11-02',dueDate:'2026-11-01',clientName:'Test',currency:'USD',items:[{description:'Item',quantity:1,rate:10}]}),/Due date/));

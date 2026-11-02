@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+test('public frontend validates backend edition and ships API client',()=>{const api=fs.readFileSync(new URL('../api-client.js',import.meta.url),'utf8');const config=fs.readFileSync(new URL('../config.js',import.meta.url),'utf8');assert.match(api,/value\.edition!=='public'/);assert.match(config,/edition: 'public'/);assert.doesNotMatch(api,/ow-invoice-generator\.vercel\.app/);});

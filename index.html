@@ -73,7 +73,7 @@
           <section class="form-section"><div class="field-grid"><label><span>Business name</span><input id="businessName" required /></label><label><span>Email</span><input id="businessEmail" type="email" /></label><label><span>Phone</span><input id="businessPhone" type="tel" /></label><label class="full"><span>Address</span><textarea id="businessAddress" rows="3"></textarea></label></div><button class="primary" type="submit">Save profile</button></section>
         </form>
         <section class="support-panel"><div><h2>Support this project</h2><p>If Invoice Simple saves you time, you can make a voluntary contribution through PayPal.</p></div><button class="secondary" type="button" id="supportBtn">Support us</button></section>
-        <section class="account-note"><h2>OW Central account</h2><p id="authStatus">Development mode is active. OW Central sign-in will be connected when the portal is ready.</p></section>
+        <section class="account-note"><h2>OW Central account</h2><p id="authStatus">Development mode is active. OW Central sign-in will be connected when the portal is ready.</p><button class="secondary" id="owCentralLoginBtn" type="button" hidden>Sign in with OW Central</button></section>
       </section>
     </main>
 
@@ -88,6 +88,6 @@
   <dialog id="previewDialog"><div class="dialog-head"><div><p class="kicker">Document preview</p><h2 id="previewHeading">Invoice</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close preview">Close</button></div><div id="previewContent" class="paper-preview"></div><div class="dialog-actions"><button class="secondary" type="button" id="printBtn">Print or save PDF</button><button class="primary" type="button" id="shareBtn">Share</button></div></dialog>
   <dialog id="supportDialog"><div class="dialog-head"><div><p class="kicker">Voluntary contribution</p><h2>Support us</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close support menu">Close</button></div><p>Your support helps keep this invoice tool available and improving. Payments are securely handled by PayPal.</p><button class="paypal-btn" type="button" id="paypalBtn">Continue to PayPal</button><small>No contribution is required to use the app.</small></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="config.js"></script><script type="module" src="app.js"></script>
+  <script src="config.js"></script><script src="api-client.js"></script><script type="module" src="app.js"></script>
 </body>
 </html>

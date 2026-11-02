@@ -15,8 +15,32 @@ its logo, sectors, departments, loyalty program, staff login, or QR scanner.
 - Open a voluntary PayPal support flow once its URL is configured
 - Package the web application for Android and iOS with Capacitor
 
-Local storage is development-only. Before public release, document and profile
-operations must use the Vercel API and the existing public Neon database.
+Local storage remains available only while `authMode` is `development`. The
+public API foundation in `backend/` provides authenticated, user-isolated
+profile and document storage for OW Central mode.
+
+## Public infrastructure identity
+
+- Repository: `OurWorldTT/owf-invoice-generator`
+- Edition identifier: `public`
+- Neon project: `OW Invoice Generator Public` (`gentle-flower-08749127`)
+- Database: `invoice_public`
+- User-brand bucket: `user-brand-assets`
+
+The public API health check rejects any database name other than
+`invoice_public`. The browser also rejects a backend that does not identify
+itself as the public edition. Business credentials, staff accounts, and the
+business API must never be configured here.
+
+## Backend
+
+Deploy `backend/` as its own Vercel project and configure the variables shown
+in `backend/.env.example`. Apply `backend/sql/001-public-api-foundation.sql`
+with a direct/unpooled connection after rehearsing it on a Neon branch.
+
+OW Central must expose an OIDC-compatible JWKS URL, issuer, and audience. The
+API validates signed access tokens and uses the token subject as the only user
+identity. No passwords or client secrets are stored in this repository.
 
 ## Run and test
 
