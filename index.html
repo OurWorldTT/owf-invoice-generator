@@ -3,18 +3,20 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0d5f59" />
+  <meta name="theme-color" content="#c2410c" />
   <meta name="description" content="Create and manage clean invoices and receipts." />
-  <title>Invoice Simple</title>
+  <title>Invoice Generator</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <script src="theme.js"></script>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Skip to content</a>
   <div class="app-shell">
     <header class="topbar">
-      <button class="brand" type="button" data-route="home" aria-label="Invoice Simple home">
-        <span class="brand-mark" aria-hidden="true">IS</span>
-        <span><strong>Invoice Simple</strong><small>Documents made clear</small></span>
+      <button class="brand" type="button" data-route="home" aria-label="Invoice Generator home">
+        <span class="brand-mark"><img src="assets/ourworld-mark.png" alt="" /></span>
+        <span><strong>Invoice Generator</strong><small>an OurWorldFoundation Project</small></span>
       </button>
       <button class="avatar-btn" id="profileShortcut" type="button" data-route="settings" aria-label="Open business profile">DM</button>
     </header>
@@ -22,7 +24,7 @@
     <main id="mainContent" tabindex="-1">
       <section class="screen is-active" id="homeScreen" data-screen="home">
         <div class="home-heading">
-          <div><p class="kicker">Your workspace</p><h1>Good morning</h1><p>Create, track, and share professional documents from one place.</p></div>
+          <div><p class="kicker">Your workspace</p><h1>Greetings!</h1></div>
           <button class="primary wide-mobile" type="button" id="newDocumentBtn">Create document</button>
         </div>
         <div class="summary-grid" aria-label="Document summary">
@@ -31,13 +33,13 @@
           <article class="summary"><span>Documents</span><strong id="documentCount">0</strong><small>Invoices and receipts</small></article>
         </div>
         <section class="content-section">
-          <div class="section-heading"><div><h2>Recent activity</h2><p>Your latest invoices and receipts.</p></div><button class="text-btn" type="button" data-route="records">View all</button></div>
+          <div class="section-heading"><div><h2>Recent activity</h2></div><button class="text-btn" type="button" data-route="records">View all</button></div>
           <div id="recentList" class="document-list"></div>
         </section>
       </section>
 
       <section class="screen" id="createScreen" data-screen="create" hidden>
-        <div class="screen-heading"><button class="back-btn" type="button" data-route="home" aria-label="Back to home">Back</button><div><p class="kicker">New document</p><h1>Create invoice</h1></div></div>
+        <div class="screen-heading"><button class="back-btn" type="button" data-route="home" aria-label="Back to home">Back</button><div><p class="kicker">New document</p><h1>Invoice details</h1></div></div>
         <form id="documentForm" novalidate>
           <section class="form-section">
             <div class="segmented" role="group" aria-label="Document type">
@@ -52,11 +54,11 @@
               <label><span>Currency</span><select id="currency"><option>USD</option><option>TTD</option><option>CAD</option><option>GBP</option><option>EUR</option></select></label>
             </div>
           </section>
-          <section class="form-section"><h2>Bill to</h2><div class="field-grid"><label><span>Client name</span><input id="clientName" autocomplete="name" required /></label><label><span>Email</span><input id="clientEmail" type="email" autocomplete="email" /></label><label class="full"><span>Address</span><textarea id="clientAddress" rows="2"></textarea></label></div></section>
+          <section class="form-section"><h2>Bill to</h2><div class="field-grid"><label><span>Client name</span><input id="clientName" autocomplete="name" required /></label><label><span>Phone number</span><input id="clientPhone" type="tel" autocomplete="tel" /></label><label><span>Email</span><input id="clientEmail" type="email" autocomplete="email" /></label><label class="full"><span>Address</span><textarea id="clientAddress" rows="2"></textarea></label></div></section>
           <section class="form-section"><div class="section-heading compact"><h2>Items</h2><button class="text-btn" type="button" id="addItemBtn">Add item</button></div><div id="itemsList" class="items-list"></div></section>
           <section class="form-section totals"><div><span>Subtotal</span><strong id="subtotalValue">$0.00</strong></div><label><span>Tax</span><input id="taxValue" type="number" min="0" step="0.01" value="0" /></label><div class="grand-total"><span>Total</span><strong id="totalValue">$0.00</strong></div></section>
           <section class="form-section"><label><span>Notes</span><textarea id="notes" rows="3" placeholder="Payment terms or a short thank-you note"></textarea></label></section>
-          <div class="form-actions"><button class="secondary" type="button" id="previewBtn">Preview</button><button class="primary" type="submit">Save document</button></div>
+          <div class="form-actions three"><button class="secondary danger-outline" type="button" id="clearDocumentBtn">Clear</button><button class="secondary" type="button" id="previewBtn">Preview</button><button class="primary" type="submit">Save document</button></div>
         </form>
       </section>
 
@@ -72,8 +74,11 @@
           <section class="form-section logo-section"><div id="logoPreview" class="logo-preview" aria-live="polite"><span>Logo</span></div><div><label class="upload-btn" for="logoInput">Choose logo</label><input class="sr-only" id="logoInput" type="file" accept="image/png,image/jpeg,image/webp" /><p>PNG, JPEG, or WebP. Maximum 2 MB.</p><button class="text-btn danger" id="removeLogoBtn" type="button">Remove logo</button></div></section>
           <section class="form-section"><div class="field-grid"><label><span>Business name</span><input id="businessName" required /></label><label><span>Email</span><input id="businessEmail" type="email" /></label><label><span>Phone</span><input id="businessPhone" type="tel" /></label><label class="full"><span>Address</span><textarea id="businessAddress" rows="3"></textarea></label></div><button class="primary" type="submit">Save profile</button></section>
         </form>
-        <section class="support-panel"><div><h2>Support this project</h2><p>If Invoice Simple saves you time, you can make a voluntary contribution through PayPal.</p></div><button class="secondary" type="button" id="supportBtn">Support us</button></section>
-        <section class="account-note"><h2>OW Central account</h2><p id="authStatus">Development mode is active. OW Central sign-in will be connected when the portal is ready.</p><button class="secondary" id="owCentralLoginBtn" type="button" hidden>Sign in with OW Central</button></section>
+        <section class="form-section"><div class="section-heading"><div><h2>Appearance</h2><p>Follow your device or choose a permanent appearance.</p></div></div><label><span>Theme</span><select id="themePreference"><option value="auto">Automatic (system)</option><option value="light">Light</option><option value="dark">Dark</option></select></label></section>
+        <section class="form-section signature-settings"><div class="toggle-heading"><div><h2>Saved signature</h2><p>Add a typed or hand-drawn signature to every generated document.</p></div><label class="switch"><input id="signatureEnabled" type="checkbox" /><span aria-hidden="true"></span><em>Enabled</em></label></div><div id="signatureEditor" hidden><div class="segmented signature-modes"><button class="is-selected" type="button" data-signature-mode="typed">Type</button><button type="button" data-signature-mode="drawn">Draw</button></div><label id="typedSignatureField"><span>Signature name</span><input id="typedSignature" maxlength="120" /></label><div id="drawnSignatureField" hidden><canvas id="signatureCanvas" width="900" height="260" aria-label="Draw your signature"></canvas><button class="text-btn danger" id="clearSignatureBtn" type="button">Clear drawing</button></div></div><button class="primary" id="saveSignatureBtn" type="button">Save signature settings</button></section>
+        <details class="form-section presets-panel" open><summary><span>Client presets</span><small>Save and reuse contact details</small></summary><form id="presetForm" class="preset-form"><div class="field-grid"><label><span>Name</span><input id="presetName" required /></label><label><span>Phone number</span><input id="presetPhone" type="tel" /></label><label><span>Email</span><input id="presetEmail" type="email" /></label></div><button class="primary" type="submit">Save preset</button></form><div id="presetRail" class="preset-rail" aria-label="Saved client presets"></div></details>
+        <section class="support-panel"><div><h2>Support this project</h2><p>If Invoice Generator saves you time, you can make a voluntary contribution through PayPal.</p></div><button class="secondary" type="button" id="supportBtn">Support us</button></section>
+        <section class="account-note login-zone" id="loginZone"><div id="loggedOutView"><h2>OW Login Portal</h2><p id="authStatus">Sign up or log in to create, save, print, and download documents.</p><button class="primary" id="loginPortalBtn" type="button">Sign up or log in</button></div><div id="loggedInView" class="portal-profile" hidden><img id="portalAvatar" alt="Account avatar" /><div><small>OW Login Portal</small><h2 id="portalDisplayName">Signed in</h2><p id="portalEmail"></p></div><button class="secondary logout-btn" id="logoutBtn" type="button">Log out</button></div></section>
       </section>
     </main>
 
@@ -88,6 +93,6 @@
   <dialog id="previewDialog"><div class="dialog-head"><div><p class="kicker">Document preview</p><h2 id="previewHeading">Invoice</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close preview">Close</button></div><div id="previewContent" class="paper-preview"></div><div class="dialog-actions"><button class="secondary" type="button" id="printBtn">Print or save PDF</button><button class="primary" type="button" id="shareBtn">Share</button></div></dialog>
   <dialog id="supportDialog"><div class="dialog-head"><div><p class="kicker">Voluntary contribution</p><h2>Support us</h2></div><button class="icon-btn" type="button" data-close-dialog aria-label="Close support menu">Close</button></div><p>Your support helps keep this invoice tool available and improving. Payments are securely handled by PayPal.</p><button class="paypal-btn" type="button" id="paypalBtn">Continue to PayPal</button><small>No contribution is required to use the app.</small></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <script src="config.js"></script><script src="api-client.js"></script><script type="module" src="app.js"></script>
+  <script src="config.js"></script><script src="api-client.js"></script><script src="login-portal.js"></script><script src="signature-pad.js"></script><script type="module" src="app.js"></script>
 </body>
 </html>

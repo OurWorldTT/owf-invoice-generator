@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS app_meta (
 );
 
 INSERT INTO app_meta (key, value)
-VALUES ('schema_version', '1.0.0-public')
+VALUES ('schema_version', '1.2.0-public')
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();
 
 -- Identity is owned by the external OW login portal. Never store passwords here.
@@ -22,6 +22,10 @@ CREATE TABLE IF NOT EXISTS user_profiles (
   business_address text NOT NULL DEFAULT '',
   default_currency varchar(3) NOT NULL DEFAULT 'USD',
   logo_object_key text,
+  avatar_url text NOT NULL DEFAULT '',
+  signature_enabled boolean NOT NULL DEFAULT false,
+  signature_mode text NOT NULL DEFAULT 'typed' CHECK (signature_mode IN ('typed','drawn')),
+  signature_value text NOT NULL DEFAULT '',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CHECK (default_currency ~ '^[A-Z]{3}$')
@@ -79,6 +83,34 @@ CREATE INDEX IF NOT EXISTS documents_user_status_idx
   ON documents (user_id, status, created_at DESC);
 CREATE INDEX IF NOT EXISTS documents_user_client_idx
   ON documents (user_id, lower(client_name));
+
+CREATE TABLE IF NOT EXISTS client_presets (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  client_name text NOT NULL,
+  client_phone text NOT NULL DEFAULT '',
+  client_email text NOT NULL DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS client_presets_user_name_idx ON client_presets (user_id, lower(client_name));
+
+CREATE TABLE IF NOT EXISTS audit_events (
+  id bigserial PRIMARY KEY,
+  user_id uuid REFERENCES user_profiles(id) ON DELETE SET NULL,
+  action text NOT NULL,
+  metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS audit_events_user_recent_idx ON audit_events (user_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS api_rate_limits (
+  rate_key char(64) NOT NULL,
+  action text NOT NULL,
+  window_start timestamptz NOT NULL,
+  request_count integer NOT NULL DEFAULT 1 CHECK (request_count > 0),
+  PRIMARY KEY (rate_key, action, window_start)
+);
 
 CREATE TABLE IF NOT EXISTS document_files (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

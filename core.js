@@ -1,8 +1,9 @@
 export function createInitialState() {
   return {
-    profile: { businessName: '', businessEmail: '', businessPhone: '', businessAddress: '', logoDataUrl: '' },
+    profile: { displayName:'', email:'', avatarUrl:'', businessName: '', businessEmail: '', businessPhone: '', businessAddress: '', logoDataUrl: '', signatureEnabled:false, signatureMode:'typed', signatureValue:'' },
     counters: { invoice: 0, receipt: 0 },
-    documents: []
+    documents: [],
+    presets: []
   };
 }
 

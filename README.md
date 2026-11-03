@@ -1,4 +1,4 @@
-# Invoice Simple public mobile starter
+# Invoice Generator public mobile application
 
 This is the clean public-edition mobile application. It is intentionally
 separate from the private OurWorldTT business application and does not contain
@@ -7,6 +7,9 @@ its logo, sectors, departments, loyalty program, staff login, or QR scanner.
 ## Current capabilities
 
 - Create invoices and receipts
+- Use light, dark, or automatic system appearance with an orange-and-white theme
+- Save client presets and load only their name, phone, and email into a document
+- Save a typed or drawn account signature for optional PDF inclusion
 - Store development records locally on the device
 - Search document history
 - Preview, print/save, and share documents
@@ -17,7 +20,7 @@ its logo, sectors, departments, loyalty program, staff login, or QR scanner.
 
 Local storage remains available only while `authMode` is `development`. The
 public API foundation in `backend/` provides authenticated, user-isolated
-profile and document storage for OW Central mode.
+profile and document storage for OW Login Portal mode.
 
 ## Public infrastructure identity
 
@@ -36,9 +39,10 @@ business API must never be configured here.
 
 Deploy `backend/` as its own Vercel project and configure the variables shown
 in `backend/.env.example`. Apply `backend/sql/001-public-api-foundation.sql`
-with a direct/unpooled connection after rehearsing it on a Neon branch.
+followed by `backend/sql/002-profile-signatures-presets-audit.sql` with a
+direct/unpooled connection after rehearsing both on a Neon branch.
 
-OW Central must expose an OIDC-compatible JWKS URL, issuer, and audience. The
+The OW Login Portal must expose an OIDC-compatible JWKS URL, issuer, and audience. The
 API validates signed access tokens and uses the token subject as the only user
 identity. No passwords or client secrets are stored in this repository.
 
@@ -70,12 +74,15 @@ npm run sync:ios
 npx cap open ios
 ```
 
-## OW Central integration boundary
+## OW Login Portal integration boundary
 
-`config.js` currently uses `authMode: 'development'`. Do not place client
-secrets in this file. When OW Central is ready, configure its public login URL
-and implement Authorization Code with PKCE plus universal/app links. The Vercel
-API must validate the signed access token and scope every query to its subject.
+`config.js` currently uses `authMode: 'development'` so the project remains
+locally testable before the public identity provider values are issued. To enforce
+login in production, set `authMode` to `ow-login`, set `apiBaseUrl`, and provide
+the public authorization URL, token URL, client ID, redirect URI, and scopes in
+the `loginPortal*` fields. Do not place a client secret in this file. The browser
+uses Authorization Code with PKCE; the Vercel API validates the signed access
+token and scopes every query to its subject.
 
 ## PayPal
 

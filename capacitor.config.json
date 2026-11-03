@@ -1,6 +1,6 @@
 {
   "appId": "com.owpublic.invoice",
-  "appName": "Invoice Simple",
+  "appName": "Invoice Generator",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"

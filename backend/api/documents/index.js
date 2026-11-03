@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'; import { applyCors } from '../../lib/cors.js'; import { requireAuth } from '../../lib/auth.js';
 import { ensureUser } from '../../lib/users.js'; import { getPool } from '../../lib/db.js'; import { enforceRateLimit } from '../../lib/rate-limit.js';
-import { readJson,sendError } from '../../lib/http.js'; import { serializeDocument,validateDocument } from '../../lib/documents.js';
+import { readJson,sendError } from '../../lib/http.js'; import { serializeDocument,validateDocument } from '../../lib/documents.js'; import { recordAudit } from '../../lib/audit.js';
 export default async function handler(req,res){
   if(applyCors(req,res))return; if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Method not allowed.'});
   try{const identity=await requireAuth(req); await enforceRateLimit({subject:identity.subject,action:`documents:${req.method}`,limit:req.method==='POST'?20:90}); const user=await ensureUser(identity);
@@ -13,7 +13,7 @@ export default async function handler(req,res){
       const sequence=Number(counter.rows[0].last_sequence),prefix=document.documentType==='receipt'?'RCT':'INV',documentNumber=`${prefix}-${issueYear}-${String(sequence).padStart(4,'0')}`,requestId=document.requestId||randomUUID();
       const{rows}=await client.query(`INSERT INTO documents(user_id,request_id,document_type,document_number,sequence,issue_year,status,issue_date,due_date,client_name,client_email,client_phone,client_address,currency,items,subtotal,tax_total,discount_total,delivery_fee,total,payment_method,transaction_reference,notes)
         VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15::jsonb,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING *`,[freshUser.id,requestId,document.documentType,documentNumber,sequence,issueYear,document.status,document.issueDate,document.dueDate,document.clientName,document.clientEmail,document.clientPhone,document.clientAddress,document.currency,JSON.stringify(document.items),document.subtotal,document.taxTotal,document.discountTotal,document.deliveryFee,document.total,document.paymentMethod,document.transactionReference,document.notes]);
-      await client.query('COMMIT'); return res.status(201).json({document:serializeDocument(rows[0])});
+      await recordAudit(freshUser.id,'document.created',{documentId:rows[0].id,documentNumber},client); await client.query('COMMIT'); return res.status(201).json({document:serializeDocument(rows[0])});
     }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
   }catch(error){sendError(res,error);}
 }

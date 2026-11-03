@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+test('signature, preset, avatar and audit migration is additive',()=>{const sql=fs.readFileSync(new URL('../sql/002-profile-signatures-presets-audit.sql',import.meta.url),'utf8');assert.match(sql,/ADD COLUMN IF NOT EXISTS avatar_url/);assert.match(sql,/ADD COLUMN IF NOT EXISTS signature_value/);assert.match(sql,/CREATE TABLE IF NOT EXISTS client_presets/);assert.match(sql,/CREATE TABLE IF NOT EXISTS audit_events/);assert.doesNotMatch(sql,/DROP TABLE|DROP COLUMN|TRUNCATE/i);});

@@ -3,17 +3,17 @@
 ## Foundation — implemented on the current review branch
 
 - Public/business edition and database identity guards
-- OW Central JWT verification boundary
+- OW Login Portal JWT verification boundary
 - User-isolated profiles and documents
 - Transactional invoice/receipt numbering
 - Server-side financial validation
 - Database-backed per-user rate limiting
 - Search-ready document endpoint and health diagnostics
-- Development local mode retained until OW Central production values exist
+- Development local mode retained until OW Login Portal production values exist
 
 ## Next milestones
 
-1. Complete OW Central Authorization Code + PKCE client flow and deep links.
+1. Complete OW Login Portal Authorization Code + PKCE client flow and deep links.
 2. Add private logo upload/download through `user-brand-assets`.
 3. Archive generated PDFs privately and return short-lived downloads.
 4. Add camera OCR with cropping, confidence indicators, and confirmation.
